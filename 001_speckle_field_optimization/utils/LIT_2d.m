@@ -1,38 +1,40 @@
-% Local Intensity Transformation
-function I = LIT_2d (I, target)
+function I = LIT_2d(I, target)
+% LIT_2d  Local intensity transformation (vectorized)
+% Remaps each trial's pixel intensities to match the target PDF.
+%
+% Inputs:
+%   I      - [x-by-y-by-z] array of intensities
+%   target - [NumPixel-by-1] vector with desired PDF (length x*y)
+%
+% Output:
+%   I      - remapped intensity array, same size as input
 
-[x,y,z] = size(I);
-I = reshape(I, [x*y, z]);
+[x, y, z] = size(I);
+NumPixel = x*y;
+NumTrial = z;
 
-% I_sort_position stores intensity and its corresponding coordinate
-[NumPixel, NumTrial] = size(I);
-I_sort_position = zeros(NumPixel, NumTrial, 2);
-I_sort_position(:,:,1) = I;
-[~,I_sort_position(:,:,2)] = meshgrid(1:NumTrial,1:NumPixel);
+% Flatten spatial dimensions
+I2 = reshape(I, NumPixel, NumTrial);
 
-for trial = 1:NumTrial
-    I_sort_position2 = sortrows(squeeze(I_sort_position(:,trial,:)));
-    target = sort(target);
-    for i = 1:NumPixel
-        I(I_sort_position2(i,2),trial) = target(i);
-    end
-end
+% Sort intensities along each trial, get indices
+[~, idx] = sort(I2, 1, 'ascend');
 
-I = reshape(I, [x, y, z]);
+% Sort target PDF once
+t_sorted = sort(target);
 
-% % I_sort_position stores intensity and its corresponding coordinate
-% [NumPixel, NumPixel2, NumTrial] = size(I);
-% I_sort_position = zeros(NumPixel, NumPixel2, NumTrial, 2);
-% I_sort_position(:,:,:,1) = I;
-% [~,I_sort_position(:,:,:,2),~] = meshgrid(1:NumTrial,1:NumPixel,1:NumPixel2);
-% 
-% for trial = 1:NumTrial
-%     I_sort_position2 = sortrows(squeeze(I_sort_position(:,:,trial,:)));
-%     target = sort(target);
-%     for i = 1:NumPixel
-%         for j = 1:NumPixel2
-%             I(I_sort_position2(i,j,2),trial) = target(i);
-%         end
-%     end
-% end
+% Build linear indices for vectorized assignment
+offset = (0:NumTrial-1) * NumPixel;          % 1 x z
+linearIdx = idx + offset;                     % NumPixel x z
+
+% Prepare output array
+I2_new = zeros(size(I2), 'like', I2);
+
+% Tile sorted target for all trials
+Tmat = repmat(t_sorted, 1, NumTrial);
+
+% Assign new intensities in one vectorized step
+I2_new(linearIdx(:)) = Tmat(:);
+
+% Reshape back to [x y z]
+I = reshape(I2_new, x, y, z);
 end
