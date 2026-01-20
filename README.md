@@ -8,7 +8,9 @@ MATLAB code for a two-step optimization pipeline:
 
 This repository accompanies:  
 Codes for "Tailored Speckle Illumination Microscopy with Enhanced Sectioning and Image Quality"
+
 Authors: SeungYun Han, KyeoReh Lee, Young Seo Kim, Chuan Li, Nicholas Bender, Kabish Wisal, Taeyun Ku, Jerome Mertz, Hui Cao
+
 Corresponding author: Hui Cao (hui.cao@yale.edu)
 
 For code details: SeungYun Han (seungyun.han@yale.edu)
