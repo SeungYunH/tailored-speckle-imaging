@@ -34,7 +34,7 @@ function TargetImages = GetTargetImage(E0, param)
     for iz = 1:Nz
         subplot(1, Nz, iz);
         imagesc(TargetImages(:, :, iz, 1)); axis image off;
-        title(sprintf('z = %.2f %s', zVec(iz), char(181)));
+        title(sprintf('z = %.2f %sm', zVec(iz), char(181)));
         colormap hot;
     end
     sgtitle('Axial Intensity Profiles (First Realization)');
