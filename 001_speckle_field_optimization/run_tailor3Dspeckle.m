@@ -12,7 +12,7 @@ end
 
 % SLM settings
 SLMsize = [600 800];              % Non-square SLM (HxW)
-target_size = [600 800];         
+target_size = [300 400];         
 
 
 %% Generate target PDFs
