@@ -29,7 +29,7 @@ param.SLMsize = SLMsize;            % [H, W] in pixels
 param.target_size = target_size;
 param.NAportion = 0.8;              % Define NA portion for the parameters
 param.pad_ratio = 1.2;              % pad ratio factor for working grid
-param.NumIter = 300;                % Iterations for GS loop
+param.NumIter = 500;                % Iterations for GS loop
 param.batch_size = 1;               % Number of speckles in batch
 param.SaveFile = true;              % Save result
 param.saveDir = saveDir;            % Save folder
@@ -77,10 +77,10 @@ end
 
 
 %% Check the histogram
-figure(31), clf;
-for j = 1:length(pdf_target_struct)
-    hist_err(squeeze(TargetImages(:,:,j,:)),0,1);
-end
+% figure(31), clf;
+% for j = 1:length(pdf_target_struct)
+%     hist_err(squeeze(TargetImages(:,:,j,:)),0,1);
+% end
 
 
 
