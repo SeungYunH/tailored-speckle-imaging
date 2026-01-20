@@ -79,7 +79,7 @@ end
 %% Check the histogram
 figure(31), clf;
 for j = 1:length(pdf_target_struct)
-    hist_err(squeeze(TargetImages(:,:,j,:)),0,1)
+    hist_err(squeeze(TargetImages(:,:,j,:)),0,1);
 end
 
 
