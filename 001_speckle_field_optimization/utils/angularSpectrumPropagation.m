@@ -1,11 +1,17 @@
 function E_stack = angularSpectrumPropagation(E0, zVec, k_parax)
-% angularSpectrumPropagation_paraxial
-% Propagates a batch of complex fields using the paraxial angular spectrum method
+% angularSpectrumPropagation
+% Propagates a batch of complex fields using the EXACT (non-paraxial)
+% angular spectrum method. The transfer function applied per frequency is
+%     H = exp(-1i * pi * z * k_parax)
+% where k_parax is precomputed so that this equals exp(1i*z*(kz - k0)),
+% i.e. exact free-space propagation with the constant piston k0*z removed.
+% Paraxial limit: k_parax -> wavelength * krho2 (small angles).
 %
 % Inputs:
 %   E0       - (Ny x Nx x Nbatch), complex input fields at z = 0
 %   zVec     - (1 x Nz), vector of axial distances in um
-%   k_parax  - (Ny x Nx), precomputed wavelength * krho2 term (1/um)
+%   k_parax  - (Ny x Nx), exact propagation kernel (1/um):
+%                k_parax = (k0 - sqrt(k0^2 - krho^2)) / pi
 %
 % Output:
 %   E_stack  - (Ny x Nx x Nz x Nbatch), propagated fields

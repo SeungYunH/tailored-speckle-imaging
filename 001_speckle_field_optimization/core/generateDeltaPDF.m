@@ -14,5 +14,5 @@ function data = generateDeltaPDF(SLMsize)
 
     N = prod(SLMsize);
     data.pdf = ones(N, 1);
-    data.name = 'Dt';
+    data.name = 'D';
 end

@@ -56,18 +56,22 @@ param.range_y = range_y;
 target_mask = false(dim_y, dim_x);
 target_mask(range_x, range_y) = true;
 
-% Propagation parameters
-krho2 = computeKrho2(dim_x, dim_y, param.effPix); % um^-1
-k_parax = krho2 * param.wavelength;
+% Propagation parameters (exact non-paraxial angular spectrum)
+%   k_parax here encodes the EXACT kz kernel such that the propagator
+%   H = exp(-i*pi*z*k_parax)  equals  exp(i*z*(kz - k0)), where
+%   kz = sqrt(k0^2 - krho^2) and k0 = 2*pi/lambda. Piston (k0*z) is
+%   dropped, matching the prior convention. Paraxial limit -> lambda*krho2.
+krho2 = computeKrho2(dim_x, dim_y, param.effPix);                 % (1/um)^2
+k0    = 2*pi / param.wavelength;                                  % 1/um
+kz    = sqrt(max(k0^2 - 4*pi^2*krho2, 0));                        % evanescent -> 0
+k_parax = (k0 - kz) / pi;                                         % 1/um
 param.k_parax = k_parax;
 
-if ~isfield(param, 'z_targets') || isempty(param.z_targets)
-    param.z_targets = zeros(1, M);
+% Physical axial target positions (um). Caller must supply param.z_target_physical.
+if ~isfield(param, 'z_target_physical') || isempty(param.z_target_physical)
+    param.z_target_physical = zeros(1, M);
 end
-% axialRes = 2 * param.wavelength / (param.NA)^2;  % in um
-axialRes = param.wavelength / (1-sqrt(1-(param.NA)^2));  % in um
-z_target_physical = param.z_targets * axialRes;  % um
-param.z_target_physical = z_target_physical;
+z_target_physical = param.z_target_physical;
 
 % Pupil filter
 k_NA = param.NA / param.wavelength;
@@ -152,7 +156,8 @@ for iter = 1:param.NumIter
     % Progress display
     elapsed = toc(tStart);
     eta = elapsed / iter * (param.NumIter - iter);
-    fprintf('Iter %3d/%d: err = %.4f (%.1fs elapsed, ETA %.2fmin)\n', iter, param.NumIter, errpdf(iter), elapsed, eta/60);
+    fprintf('Iter %3d/%d: err = %.4f (%s elapsed, ETA %s)\n', ...
+            iter, param.NumIter, errpdf(iter), fmtTime(elapsed), fmtTime(eta));
     
     % fprintf('1 Mean intensity %.2f, current mean:%.2f, MeanI %.2f)\n', mean(abs(E_stack).^2,'all'), sqrt(mean(abs(E_stack).^2,'all')), sqrt(MeanI));
     E_stack = E_stack / sqrt(mean(abs(E_stack).^2,'all')) * sqrt(MeanI);
@@ -163,5 +168,24 @@ end
 % Gather results back to CPU
 if useGPU
     E_update = gather(E_update);
+end
+
+% Plot error history after optimization finishes
+figure;
+plot(1:param.NumIter, errpdf, 'LineWidth', 1.5);
+xlabel('Iteration');
+ylabel('PDF error');
+title('Tailoring Speckle PDF Error History');
+grid on;
+end
+
+function out = fmtTime(tSeconds)
+% Format elapsed time using an appropriate single unit.
+if tSeconds < 60
+    out = sprintf('%.1f s', tSeconds);
+elseif tSeconds < 3600
+    out = sprintf('%.1f min', tSeconds / 60);
+else
+    out = sprintf('%.2f h', tSeconds / 3600);
 end
 end

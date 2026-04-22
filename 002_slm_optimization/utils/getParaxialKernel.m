@@ -1,11 +1,23 @@
 function k_parax = getParaxialKernel(H, W)
 % k_parax = getParaxialKernel(H, W)
 %
-% Computes paraxial propagation kernel based on optical setup
+% Computes the EXACT angular-spectrum propagation kernel (non-paraxial)
+% packaged so that the existing propagator
+%     H_prop = exp(-1i * pi * z * k_parax)
+% equals exp(1i * z * (kz - k0)), i.e. exact free-space propagation with
+% the constant piston k0*z dropped.
+%
+% Relation to the paraxial approximation:
+%     paraxial  :  k_parax ≈ wavelength * krho2           (small angles)
+%     exact     :  k_parax = (k0 - sqrt(k0^2 - krho^2)) / pi
+% where k0 = 2*pi/wavelength and krho^2 = (2*pi)^2 * (fx^2 + fy^2).
+% Evanescent frequencies (krho > k0) are clamped to 0 via max(·,0); the
+% NA pupil zeros them out anyway.
+%
 % Inputs:
 %   H, W     : image height and width (in pixels)
 % Output:
-%   k_parax  : paraxial kernel (unit: µm⁻¹)
+%   k_parax  : exact propagation kernel (unit: µm⁻¹)
 
 % System parameters
 wavelength = 488e-3;   % µm
@@ -26,6 +38,8 @@ fy = ifftshift((-floor(H/2):ceil(H/2)-1) / (H * effPix));  % µm⁻¹
 % Compute squared transverse spatial frequency
 krho2 = FX.^2 + FY.^2;  % in µm⁻²
 
-% Compute paraxial propagation kernel (z * k_parax is unitless phase argument)
-k_parax = wavelength * krho2;  % in µm⁻¹
+% Exact (non-paraxial) propagation kernel.
+k0 = 2*pi / wavelength;                                 % µm⁻¹
+kz = sqrt(max(k0^2 - 4*pi^2*krho2, 0));                 % evanescent -> 0
+k_parax = (k0 - kz) / pi;                               % µm⁻¹
 end

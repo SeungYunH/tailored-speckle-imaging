@@ -450,47 +450,6 @@ switch patName
             Ein0 = angularSpectrumPropagation(Ein0, 0.3, k_parax);
         end
 
-    case '2DSIMincohRand'
-        % %% sine pattern with randomized incidence (common carrier)
-        % Keeps the same fringe vector at z=0 while tilting both plane waves together.
-        NAportion = patParams(1);
-        modAngle  = patParams(2); % deg
-        addPhase  = patParams(3); % deg
-
-        % --- Fixed grating definition (unchanged) ---
-        kmodVec = k_NA * NAportion .* [sind(modAngle), cosd(modAngle)]; % [um^-1]
-        grids = ndgrid_matSizeIn(SLMsize, 0, 'centerZero');  % [pix], {Y,X}
-        xgrid0 = cat(3, grids{1}, grids{2});                 % [pix]
-        xgrid0 = xgrid0 .* effPix;                           % [um]
-
-        phi = 2*pi*( xgrid0(:,:,1)*kmodVec(1) + xgrid0(:,:,2)*kmodVec(2) ) + deg2rad(addPhase);
-        firstOrder = exp(1i*phi);
-        Ein0 = real((firstOrder + conj(firstOrder))/2);   % cos(phi) — sets the grating at z=0
-
-        % --- Randomized common carrier (keeps z=0 fringe intact) ---
-        % Target magnitude scales like your original SIM_ramp_shift, but is clipped to stay inside NA.
-        kmag = hypot(kmodVec(1), kmodVec(2));
-        if kmag >= k_NA
-            error('kmod magnitude (%.3g) exceeds k_NA (%.3g). Reduce NAportion or modAngle.', kmag, k_NA);
-        end
-        kRamp_target = SIM_ramp_shift * kmag;           % your scaling preference
-        kRamp_safety = max(0, 0.95*(k_NA - kmag));      % ensure |kRamp ± kmod| < k_NA with margin
-        kRamp_mag = min(kRamp_target, kRamp_safety);    % final safe magnitude
-
-        theta_rand = 2*pi*rand(1);                      % random direction
-        kRamp = kRamp_mag * [cos(theta_rand), sin(theta_rand)];
-        phiRamp = 2*pi*( xgrid0(:,:,1)*kRamp(1) + xgrid0(:,:,2)*kRamp(2) );
-
-        % Pattern (common carrier multiplies both beams; fringe at z=0 unchanged)
-        Ein0 = Ein0 .* exp(1i*phiRamp);
-
-        % (Optional self-check; can be commented out for speed)
-        k_plus  = [kRamp(1)+kmodVec(1), kRamp(2)+kmodVec(2)];
-        k_minus = [kRamp(1)-kmodVec(1), kRamp(2)-kmodVec(2)];
-        if hypot(k_plus(1),k_plus(2)) >= k_NA || hypot(k_minus(1),k_minus(2)) >= k_NA
-            warning('2DSIMincohRand: sideband outside pupil; consider reducing SIM_ramp_shift or NAportion.');
-        end
-
     otherwise
         assert(all(size(Ein0)==SLMsize), 'Ein0 size mismatch');
 end
