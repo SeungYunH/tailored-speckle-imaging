@@ -1,3 +1,8 @@
+%% Setup paths and output directory
+thisDir = fileparts(mfilename('fullpath'));
+addpath(genpath(fullfile(thisDir,'core')));     % Main algorithm functions
+addpath(genpath(fullfile(thisDir,'utils')));    % Utility functions
+
 %% =====================================================================
 %  USER PARAMETERS  (edit this block for your setup)
 %  =====================================================================
@@ -57,19 +62,13 @@ z_target_physical = z_targets * axialUnit;
 SaveFile = true;                                   % Save result .mat
 saveDir  = fullfile(fileparts(mfilename('fullpath')), 'data');  % output folder
 
+if ~exist(saveDir,'dir')
+    mkdir(saveDir);
+end
 
 %% =====================================================================
 %  Execution  (normally no edits needed below)
 %  =====================================================================
-
-%% Setup paths and output directory
-thisDir = fileparts(mfilename('fullpath'));
-addpath(genpath(fullfile(thisDir,'core')));     % Main algorithm functions
-addpath(genpath(fullfile(thisDir,'utils')));    % Utility functions
-
-if ~exist(saveDir,'dir')
-    mkdir(saveDir);
-end
 
 %% Derived quantities
 addMag = f1 / f2;                     % Additional magnification from relay
