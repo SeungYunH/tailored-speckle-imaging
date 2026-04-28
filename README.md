@@ -1,5 +1,4 @@
 
-
 # Tailored 3D Speckle Optimization (MATLAB)
 
 MATLAB code for a two-step optimization pipeline:
@@ -45,34 +44,31 @@ Top-level:
 1) Clone the repository and open MATLAB in the repo root:
 ```matlab
 cd('path/to/repo')
+```
+
 (Adjust the save path to your actual behavior.)
 
 ### 2) Clarify inputs: does `main.m` create/load `E0`?
 You mentioned earlier `run_slm_optimization` needs `E0` in the workspace (scripts). In README you should state one of:
 
-- **Option A:** “`main.m` loads/creates `E0` automatically.”  
-- **Option B:** “User must load `E0` before running `run_slm_optimization`.”
+- **Option A:** `main.m` loads/creates `E0` automatically.  
+- **Option B:** User must load `E0` before running `run_slm_optimization`.
 
 If B, add a snippet:
 
 ```markdown
 If you run `002_slm_optimization/run_slm_optimization.m` directly, you must define `E0` first (target complex field at the sample plane).
-
+```
 
 ## Reproducibility notes
 - Random seed is set in `main.m` via `rng(0)`.
 - GPU is auto-detected; set `useGPU = 0` to force CPU.
 - Scripts assume you run from the repo root (`cd` to the repo root before `main`).
 
-
 ## License
 MIT License. See `LICENSE`.
 
-
 ## Citation
-If you use this code, please cite the associated paper:
-[full citation or “under review” / “preprint” if applicable]
+If you use this code, please cite:
 
-
-
-
+SeungYun Han et al., *Tailored Speckle Illumination Microscopy with Enhanced Sectioning and Image Quality*, arXiv:2604.20112 (2026). [arXiv link](https://arxiv.org/abs/2604.20112)
